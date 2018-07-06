@@ -1,7 +1,7 @@
 Set-Location {{pkg.svc_path}}
 if(Test-Path var) { Remove-Item var -Recurse -Force }
-New-Item -Name var -ItemType Junction -target "{{pkg.path}}/sqlwebadmin" | Out-Null
-cd var
+New-Item -Name www -ItemType Junction -target "{{pkg.path}}/sqlwebadmin" | Out-Null
+cd www
 New-Item -Name Web.config -ItemType SymbolicLink -target "{{pkg.svc_config_path}}/Web.config" -Force | Out-Null
 cd App_Code
 New-Item -Name Global.asax.cs -ItemType SymbolicLink -target "{{pkg.svc_config_path}}/Global.asax.cs" -Force | Out-Null

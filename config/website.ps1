@@ -38,7 +38,7 @@ Configuration NewWebsite
             Ensure          = "Present"
             Name            = "{{cfg.site_name}}"
             State           = "Started"
-            PhysicalPath    = Resolve-Path "{{pkg.svc_var_path}}"
+            PhysicalPath    = Resolve-Path "{{pkg.svc_path}}\www"
             ApplicationPool = "{{cfg.app_pool}}"
             BindingInfo = @(
                 MSFT_xWebBindingInformation
