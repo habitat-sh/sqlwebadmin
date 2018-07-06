@@ -1,0 +1,3 @@
+port = 8099
+app_pool = "sqlwebadmin_pool"
+site_name = "sqlwebadmin_site"

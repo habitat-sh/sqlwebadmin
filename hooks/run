@@ -1,0 +1,37 @@
+$ProgressPreference="SilentlyContinue"
+Invoke-Command -ComputerName localhost -EnableNetworkAccess {
+    $ProgressPreference="SilentlyContinue"
+    Write-Host "Checking for nuget package provider..."
+    if(!(Get-PackageProvider -Name nuget -ErrorAction SilentlyContinue -ListAvailable)) {
+        Write-Host "Installing Nuget provider..."
+        Install-PackageProvider -Name NuGet -Force | Out-Null
+    }
+    Write-Host "Checking for xWebAdministration PS module..."
+    if(!(Get-Module xWebAdministration -ListAvailable)) {
+        Write-Host "Installing xWebAdministration PS Module..."
+        Install-Module xWebAdministration -Force | Out-Null
+    }
+}
+
+Import-Module "{{pkgPathFor "core/dsc-core"}}/Modules/DscCore"
+Start-DscCore (Join-Path {{pkg.svc_config_path}} website.ps1) NewWebsite
+
+try {
+    Write-Host "{{pkg.name}} is running"
+    $running = $true
+    while($running) {
+        Start-Sleep -Seconds 1
+        $resp = Invoke-WebRequest "http://localhost:{{cfg.port}}/default.aspx" -Method Head
+        if($resp.StatusCode -ne 200) { $running = $false }
+    }
+}
+catch {
+    Write-Host "{{pkg.name}} HEAD check failed"
+}
+finally {
+    # Add any cleanup here which will run after supervisor stops the service
+    Write-Host "{{pkg.name}} is stoping..."
+    ."$env:SystemRoot\System32\inetsrv\appcmd.exe" stop apppool "{{cfg.app_pool}}"
+    ."$env:SystemRoot\System32\inetsrv\appcmd.exe" stop site "{{cfg.site_name}}"
+    Write-Host "{{pkg.name}} has stopped"
+}
