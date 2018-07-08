@@ -20,7 +20,7 @@ try {
     Write-Host "{{pkg.name}} is running"
     $running = $true
     while($running) {
-        Start-Sleep -Seconds 3
+        Start-Sleep -Seconds 10
         $resp = Invoke-WebRequest "http://localhost:{{cfg.port}}/default.aspx" -Method Head
         if($resp.StatusCode -ne 200) { $running = $false }
     }
