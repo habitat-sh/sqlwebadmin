@@ -75,7 +75,7 @@ The website should now be accessible. Browse to `http://localhost:8099/databases
 
 **Important**: You must have [Docker for Windows](https://www.docker.com/docker-windows) running in Windows container mode. If you have launched an AWS or Azure image with Docker preinstalled, you should be good to go but make sure the instance has at least 50GB of disk space.
 
-For some reasone, installing Windows features inside of a container (like the .Net 2.0 runtime) will not download on demand features from Windows Update like they do locally. So you will need to get the feature source files and mount them to the container. Download an Evaluation Windows Server 2016 ISO file by browsing to `https://www.microsoft.com/en-us/evalcenter/evaluate-windows-server-2016` and choosing an English ISO file. Once that is downloaded, Mount the ISO and copy the .Net 2.0 runtime on demand feature sources to your local disk:
+For some reason, installing certain Windows features inside of a container (like the .Net 2.0 runtime) will not download on demand features from Windows Update like they do locally. So you will need to get the feature source files and mount them to the container. Download an Evaluation Windows Server 2016 ISO file by browsing to `https://www.microsoft.com/en-us/evalcenter/evaluate-windows-server-2016` and choosing an English ISO file. Once that is downloaded, Mount the ISO and copy the .Net 2.0 runtime on demand feature sources to your local disk:
 
 
 ```
@@ -93,13 +93,13 @@ hab pkg export docker core/sqlserver2005
 Run the SQL Server 2005 image:
 
 ```
-$env:HAB_SQLSERVER2005="{`"netfx3_source`":`"c:/sxs`",`"svc_account`":`"NT AUTHORITY\\SYSTEM`""
+$env:HAB_SQLSERVER2005="{`"netfx3_source`":`"c:/sxs`",`"svc_account`":`"NT AUTHORITY\\SYSTEM`"}"
 docker run --memory 2gb -e HAB_SQLSERVER2005 --volume c:/sxs:c:/sxs -it core/sqlserver2005
 ```
 
 The above will spawn a container and ensure that the `init` hook finds the offline source for the .Net 2.0 runtime that it will need in order to install SQL Server 2005. It also makes sure that SQL Server runs under the `SYSTEM` account necessary in many container scenarios. After you see `sqlserver2005.default hook[post-run]:(HK): 1> 2> 3> 4> 5> 6> Application user setup complete`, kill the container with `ctrl+c`.
 
-We can vastly improve startup time of `core/sqlserver2005` containers if SQL Server is already installed into the container. Now that we have a stopped container with SQL Server installed, let's `commit` that container to a new image that we can run in subsequent demos resulting in a smoother demo:
+We can vastly improve startup time of `core/sqlserver2005` containers if SQL Server is already installed into the container. Now that we have a stopped container with SQL Server installed, let's `commit` that container to a new image that we can run in subsequent demos resulting in a faster container startup:
 
 ```
 docker commit $(docker ps -aql) sqlserver2005
@@ -133,7 +133,16 @@ docker commit $(docker ps -aql) sqlwebadmin
 
 OK! Now lets bring these two containers together into a ring:
 
+```
 $sql = docker run -d --memory 2gb sqlserver2005
 $ip = docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $sql
 docker run -it sqlwebadmin --bind database:sqlserver2005.default --peer $ip
 ```
+
+Grab the IP address of the `sqlwebadmin` container:
+
+```
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -aql)
+```
+
+Browsing to `http://<CONTAINER_IP>:8099/databases.aspx` should bring up the application.
