@@ -16,6 +16,9 @@ Invoke-Command -ComputerName localhost -EnableNetworkAccess {
 Import-Module "{{pkgPathFor "core/dsc-core"}}/Modules/DscCore"
 Start-DscCore (Join-Path {{pkg.svc_config_path}} website.ps1) NewWebsite
 
+# For some reason the first call always fails, so lets get that over with
+try { Invoke-WebRequest "http://localhost:{{cfg.port}}/default.aspx" -Method Head } catch {}
+
 try {
     Write-Host "{{pkg.name}} is running"
     $running = $true
