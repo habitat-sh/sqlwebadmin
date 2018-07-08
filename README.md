@@ -93,10 +93,11 @@ hab pkg export docker core/sqlserver2005
 Run the SQL Server 2005 image:
 
 ```
-docker run --memory 2gb -e "HAB_SQLSERVER2005=netfx3_source='c:/sxs'" --volume c:/sxs:c:/sxs -it core/sqlserver2005
+$env:HAB_SQLSERVER2005="{`"netfx3_source`":`"c:/sxs`",`"svc_account`":`"NT AUTHORITY\\SYSTEM`""
+docker run --memory 2gb -e HAB_SQLSERVER2005 --volume c:/sxs:c:/sxs -it core/sqlserver2005
 ```
 
-The above will spawn a container and ensure that the `init` hook finds the offline source for the .Net 2.0 runtime that it will need in order to install SQL Server 2005. After you see `sqlserver2005.default hook[post-run]:(HK): 1> 2> 3> 4> 5> 6> Application user setup complete`, kill the container with `ctrl+c`.
+The above will spawn a container and ensure that the `init` hook finds the offline source for the .Net 2.0 runtime that it will need in order to install SQL Server 2005. It also makes sure that SQL Server runs under the `SYSTEM` account necessary in many container scenarios. After you see `sqlserver2005.default hook[post-run]:(HK): 1> 2> 3> 4> 5> 6> Application user setup complete`, kill the container with `ctrl+c`.
 
 We can vastly improve startup time of `core/sqlserver2005` containers if SQL Server is already installed into the container. Now that we have a stopped container with SQL Server installed, let's `commit` that container to a new image that we can run in subsequent demos resulting in a smoother demo:
 
