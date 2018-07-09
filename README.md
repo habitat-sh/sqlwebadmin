@@ -1,6 +1,6 @@
 # Habitat package: sqlwebadmin
 
-An ASP.NET 2.0 application for administering SQL Server databases. The application is downloaded from the Microsoft Codeplex Archive and was last updated in 2007. This package is ideal for demonstrating legacy applications with Habitat. It's ideally run against our [`core/sqlserver2005`](https://github.com/habitat-sh/core-plans/tree/master/sqlserver2005) package.
+An ASP.NET 2.0 application for administering SQL Server databases. The application is downloaded from the Microsoft Codeplex Archive and was last updated in 2007. This package is ideal for demonstrating legacy applications with Habitat. It even declares a dependency on a COM binary (`core/sql-dmo`). It's ideally run against our [`core/sqlserver2005`](https://github.com/habitat-sh/core-plans/tree/master/sqlserver2005) package.
 
 
 ## Running the demo
