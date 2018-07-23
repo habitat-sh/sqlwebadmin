@@ -1,0 +1,14 @@
+version: '2.2'
+services:
+  sqlserver2005:
+    image: sqlserver2005
+  sqlwebadmin:
+    image: sqlwebadmin
+    ports:
+      - 8099:8099
+    links:
+      - sqlserver2005
+    depends_on:
+      - sqlserver2005
+    command: --peer sqlserver2005 --bind database:sqlserver2005.default
+
