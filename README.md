@@ -139,6 +139,12 @@ $ip = docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}
 docker run -it sqlwebadmin --bind database:sqlserver2005.default --peer $ip
 ```
 
+Alternatively you can use Docker Compose along with the provided `docker-compose.yml` to bring up the containers:
+
+```
+docker-compose up
+```
+
 Grab the IP address of the `sqlwebadmin` container:
 
 ```
