@@ -12,3 +12,7 @@ services:
       - sqlserver2005
     command: --peer sqlserver2005 --bind database:sqlserver2005.default
 
+networks:
+  default:
+    external:
+      name: nat
