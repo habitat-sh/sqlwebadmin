@@ -41,7 +41,7 @@ Setup a local default origin and key by running `hab setup`
 Enter a local Habitat Studio and load `core/sqlserver2005`:
 
 ```
-hab studio enter -w
+hab studio enter
 hab svc load core/sqlserver2005
 ```
 
@@ -108,7 +108,7 @@ docker commit $(docker ps -aql) sqlserver2005
 Build our sqlwebadmin package (make sure you are still in `c:\sqlwebadmin`):
 
 ```
-hab pkg build . -w
+hab pkg build .
 ```
 
 Export our `sqlwebadmin` hart to a docker image:
