@@ -1,16 +1,6 @@
 Set-Location {{pkg.svc_path}}
 if(Test-Path www) { Remove-Item www -Recurse -Force }
 New-Item -Name www -ItemType Junction -target "{{pkg.path}}/sqlwebadmin" | Out-Null
-
-$pool = "{{cfg.app_pool}}"
-$access = New-Object System.Security.AccessControl.FileSystemAccessRule "IIS APPPOOL\$pool", "ReadAndExecute", "Allow"
-
-@("{{pkg.svc_config_path}}/Web.config", "{{pkg.svc_config_path}}/Global.asax.cs") | % {
-    $acl = Get-Acl $_
-    $acl.SetAccessRule($access)
-    $acl | Set-Acl $_
-}
-
 cd www
 New-Item -Name Web.config -ItemType SymbolicLink -target "{{pkg.svc_config_path}}/Web.config" -Force | Out-Null
 cd App_Code

@@ -16,6 +16,15 @@ Invoke-Command -ComputerName localhost -EnableNetworkAccess {
 Import-Module "{{pkgPathFor "core/dsc-core"}}/Modules/DscCore"
 Start-DscCore (Join-Path {{pkg.svc_config_path}} website.ps1) NewWebsite
 
+$pool = "{{cfg.app_pool}}"
+$access = New-Object System.Security.AccessControl.FileSystemAccessRule "IIS APPPOOL\$pool", "ReadAndExecute", "Allow"
+
+@("{{pkg.svc_config_path}}/Web.config", "{{pkg.svc_config_path}}/Global.asax.cs") | % {
+    $acl = Get-Acl $_
+    $acl.SetAccessRule($access)
+    $acl | Set-Acl $_
+}
+
 # For some reason the first call always fails, so lets get that over with
 try { Invoke-WebRequest "http://localhost:{{cfg.port}}/default.aspx" -Method Head } catch {}
 
