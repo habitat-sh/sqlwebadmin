@@ -7,9 +7,9 @@ An ASP.NET 2.0 application for administering SQL Server databases. The applicati
 
 This will cover how to run this legacy demo in two ways:
 
-1. Demoing in a single VM. This is the easiest and most straightforward way to demo the app since it can be done in any Windows Server VM environment like VirtualBox on a Mac or any cloud based VM. It also avoids some pain involved with installing the .Net 2.0 runtime in containers. However, this does lack some "wow factor" of seeing 2005 technology running is a container.
+1. Demoing in a single VM. This is the easiest and most straightforward way to demo the app since it can be done in any Windows Server VM environment like VirtualBox on a Mac or any cloud based VM. However, this does lack some "wow factor" of seeing 2005 technology running is a container.
 
-1. Demoing in Windows Containers. You will need to have either a Windows host with Docker installed or a AWS/Azure VM with a Server 2016 **with docker** image. There is a bit more work involved here but we will walk through everything in detail.
+1. Demoing in Windows Containers. You will need to have either a Windows host with Docker installed or a AWS/Azure VM with a Server 2016 **with docker** image.
 
 ### Setup steps to run in any environment
 
@@ -32,7 +32,13 @@ git clone https://github.com/habitat-sh/sqlwebadmin
 cd sqlwebadmin
 ```
 
-Setup a local default origin and key by running `hab setup`
+Setup a local default origin and key by running `hab setup` then enable the `INSTALL_HOOK` feature:
+
+```
+$env:HAB_FEAT_INSTALL_HOOK=$true
+```
+
+This plan takes advantage of several dependencies that use this feature to run an `install` hook when the dependency is installed for things like enabling windows features and registering a COM component.
 
 ### Demo in a Windows VM (no Docker)
 
@@ -75,35 +81,14 @@ The website should now be accessible. Browse to `http://localhost:8099/databases
 
 **Important**: You must have [Docker for Windows](https://www.docker.com/docker-windows) running in Windows container mode. If you have launched an AWS or Azure image with Docker preinstalled, you should be good to go but make sure the instance has at least 50GB of disk space.
 
-For some reason, installing certain Windows features inside of a container (like the .Net 2.0 runtime) will not download on demand features from Windows Update like they do locally. So you will need to get the feature source files and mount them to the container. Download an Evaluation Windows Server 2016 ISO file by browsing to `https://www.microsoft.com/en-us/evalcenter/evaluate-windows-server-2016` and choosing an English ISO file. Once that is downloaded, Mount the ISO and copy the .Net 2.0 runtime on demand feature sources to your local disk:
-
-
-```
-Mount-DiskImage -ImagePath 'C:\Users\Administrator\Downloads\Windows_Server_2016_Datacenter_EVAL_en-us_14393_refresh.ISO'
-mkdir c:\sxs
-Copy-Item d:\sources\sxs\microsoft-windows-netfx3-ondemand-package.cab c:\sxs
-```
-
 Export the `core/sqlserver2005` package to a docker image:
 
 ```
-hab pkg export docker core/sqlserver2005
+$env:HAB_SQLSERVER2005="{`"svc_account`":`"NT AUTHORITY\\SYSTEM`"}"
+hab pkg export docker --memory 2gb core/sqlserver2005
 ```
 
-Run the SQL Server 2005 image:
-
-```
-$env:HAB_SQLSERVER2005="{`"netfx3_source`":`"c:/sxs`",`"svc_account`":`"NT AUTHORITY\\SYSTEM`"}"
-docker run --memory 2gb -e HAB_SQLSERVER2005 --volume c:/sxs:c:/sxs -it core/sqlserver2005
-```
-
-The above will spawn a container and ensure that the `init` hook finds the offline source for the .Net 2.0 runtime that it will need in order to install SQL Server 2005. It also makes sure that SQL Server runs under the `SYSTEM` account necessary in many container scenarios. After you see `sqlserver2005.default hook[post-run]:(HK): 1> 2> 3> 4> 5> 6> Application user setup complete`, kill the container with `ctrl+c`.
-
-We can vastly improve startup time of `core/sqlserver2005` containers if SQL Server is already installed into the container. Now that we have a stopped container with SQL Server installed, let's `commit` that container to a new image that we can run in subsequent demos resulting in a faster container startup:
-
-```
-docker commit $(docker ps -aql) sqlserver2005
-```
+The first line above will make sure that the SQL Server install sets the `svc_account` to the `SYSTEM` account instead of the default `NETWORK SERVICE` account which is advisable in a container environment.
 
 Build our sqlwebadmin package (make sure you are still in `c:\sqlwebadmin`):
 
@@ -114,29 +99,15 @@ hab pkg build .
 Export our `sqlwebadmin` hart to a docker image:
 
 ```
-hab pkg export docker <path to HART file>
-```
-
-Now lets create a container from that image and just like we did with `sqlserver2005` we will mount our .Net 2.0 source:
-
-```
-docker run -e "HAB_SQLWEBADMIN=netfx3_source='c:/sxs'" --volume c:/sxs:c:/sxs -it <your origin>/sqlwebadmin
-```
-
-Once the console emits: `sqlwebadmin.default(O): sqlwebadmin is running`, kill the container with ctrl+c.
-
-Just like we commited our `sqlserver2005` container to capture a new image with everything we need installed, we will do the same with this web application which also had to install the .Net 2.0 runtime and IIS features. That will make demoing the application in a container much faster:
-
-```
-docker commit $(docker ps -aql) sqlwebadmin
+hab pkg export docker --memory 2gb <path to HART file>
 ```
 
 OK! Now lets bring these two containers together into a ring:
 
 ```
-$sql = docker run -d --memory 2gb sqlserver2005
+$sql = docker run -d --memory 2gb core/sqlserver2005
 $ip = docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $sql
-docker run -it sqlwebadmin --bind database:sqlserver2005.default --peer $ip
+docker run -it <your_origin>/sqlwebadmin --bind database:sqlserver2005.default --peer $ip
 ```
 
 Alternatively you can use Docker Compose along with the provided `docker-compose.yml` to bring up the containers:

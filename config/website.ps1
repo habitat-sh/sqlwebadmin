@@ -2,27 +2,6 @@ Configuration NewWebsite
 {
     Import-DscResource -Module xWebAdministration
     Node 'localhost' {
-        WindowsFeature netfx3 
-        { 
-            Ensure = "Present"
-            Name = "NET-Framework-Core"
-            {{#if cfg.netfx3_source}}
-                Source = "{{cfg.netfx3_source}}"
-            {{/if}}
-        }
-
-        WindowsFeature ASP 
-        { 
-            Ensure = "Present"
-            Name = "WEB-ASP-NET"
-        }
-
-        WindowsFeature static_content 
-        { 
-            Ensure = "Present"
-            Name = "WEB-STATIC-CONTENT"
-        }
-
         xWebAppPool {{cfg.app_pool}}
         {
             Name   = "{{cfg.app_pool}}"

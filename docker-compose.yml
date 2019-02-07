@@ -1,7 +1,7 @@
 version: '2.2'
 services:
   sqlserver2005:
-    image: sqlserver2005
+    image: core/sqlserver2005
   sqlwebadmin:
     image: sqlwebadmin
     ports:
