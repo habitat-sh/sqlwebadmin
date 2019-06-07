@@ -105,9 +105,9 @@ hab pkg export docker --memory 2gb <path to HART file>
 OK! Now lets bring these two containers together into a ring:
 
 ```
-$sql = docker run -d --memory 2gb core/sqlserver2005
+$sql = docker run -d --env HAB_LICENSE=accept-no-persist --memory 2gb core/sqlserver2005
 $ip = docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $sql
-docker run -it <your_origin>/sqlwebadmin --bind database:sqlserver2005.default --peer $ip
+docker run -it --env HAB_LICENSE=accept-no-persist <your_origin>/sqlwebadmin --bind database:sqlserver2005.default --peer $ip
 ```
 
 Alternatively you can use Docker Compose along with the provided `docker-compose.yml` to bring up the containers:
