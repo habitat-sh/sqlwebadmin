@@ -4,7 +4,7 @@ $pkg_version="0.1.0"
 $pkg_maintainer="Matt Wrock"
 $pkg_license=@('MS-PL')
 $pkg_description="Web based SQL Server Administrator"
-$pkg_deps=@("core/dsc-core", "core/sql-dmo", "core/iis-webserverrole", "core/dotnet-35sp1-runtime", "core/iis-aspnet35")
+$pkg_deps=@("core/iis-aspnet35", "core/dsc-core", "core/sql-dmo", "core/iis-webserverrole")
 $pkg_source="https://codeplexarchive.blob.core.windows.net/archive/projects/SqlWebAdmin/SqlWebAdmin.zip"
 $pkg_shasum="ea888026a989951a62e5ac0f4f9819ee0662f5e4d99edeb4896a628430bb9075"
 $pkg_upstream_url="https://archive.codeplex.com/?p=sqlwebadmin"
