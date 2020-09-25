@@ -32,17 +32,19 @@ git clone https://github.com/habitat-sh/sqlwebadmin
 cd sqlwebadmin
 ```
 
-Setup a local default origin and key by running `hab setup` then enable the `INSTALL_HOOK` feature:
-
-```
-$env:HAB_FEAT_INSTALL_HOOK=$true
-```
+Setup a local default origin and key by running `hab setup`
 
 This plan takes advantage of several dependencies that use this feature to run an `install` hook when the dependency is installed for things like enabling windows features and registering a COM component.
 
 ### Demo in a Windows VM (no Docker)
 
 **Important**: For a smooth demo in front of an audience, make sure to run through the initial install and loading of services once before the live demo and then `unload` the services when everything is confirmed working. The first load takes MUCH longer than subsequent loads because of the .Net 2.0 and SQL Server installation. Susequent loads will already have these in place and will be much faster.
+
+On Windows 2016 Server, execute the following command in powershell as Nuget and Powershell Gallery require TLS 1.2
+
+```
+Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\.NetFramework\v4.0.30319' -Name 'SchUseStrongCrypto' -Value '1' -Type DWord
+```
 
 Enter a local Habitat Studio and load `core/sqlserver2005`:
 
