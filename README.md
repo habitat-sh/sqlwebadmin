@@ -87,7 +87,7 @@ Export the `core/sqlserver2005` package to a docker image:
 
 ```
 $env:HAB_SQLSERVER2005="{`"svc_account`":`"NT AUTHORITY\\SYSTEM`"}"
-hab pkg export docker --memory 2gb core/sqlserver2005
+hab pkg export container --memory 2gb core/sqlserver2005
 ```
 
 The first line above will make sure that the SQL Server install sets the `svc_account` to the `SYSTEM` account instead of the default `NETWORK SERVICE` account which is advisable in a container environment.
@@ -101,7 +101,7 @@ hab pkg build .
 Export our `sqlwebadmin` hart to a docker image:
 
 ```
-hab pkg export docker --memory 2gb <path to HART file>
+hab pkg export container --memory 2gb <path to HART file>
 ```
 
 OK! Now lets bring these two containers together into a ring:
