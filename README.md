@@ -112,7 +112,7 @@ $ip = docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}
 docker run -it --env HAB_LICENSE=accept-no-persist <your_origin>/sqlwebadmin --bind database:sqlserver2005.default --peer $ip
 ```
 
-Alternatively you can use Docker Compose along with the provided `docker-compose.yml` to bring up the containers:
+Alternatively you can use Docker Compose along with the provided `docker-compose.yml` to bring up the containers.  Be sure to update `image: your-origin/sqlwebadmin` with the your origin.
 
 ```
 docker-compose up

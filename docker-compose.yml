@@ -5,7 +5,7 @@ services:
     environment:
       - HAB_LICENSE=accept-no-persist
   sqlwebadmin:
-    image: $HAB_ORIGIN/sqlwebadmin
+    image: your-origin/sqlwebadmin
     environment:
       - HAB_LICENSE=accept-no-persist
     ports:
