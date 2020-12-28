@@ -2,8 +2,12 @@ version: '2.2'
 services:
   sqlserver2005:
     image: core/sqlserver2005
+    environment:
+      - HAB_LICENSE=accept-no-persist
   sqlwebadmin:
-    image: sqlwebadmin
+    image: your-origin/sqlwebadmin
+    environment:
+      - HAB_LICENSE=accept-no-persist
     ports:
       - 8099:8099
     links:

@@ -32,17 +32,19 @@ git clone https://github.com/habitat-sh/sqlwebadmin
 cd sqlwebadmin
 ```
 
-Setup a local default origin and key by running `hab setup` then enable the `INSTALL_HOOK` feature:
-
-```
-$env:HAB_FEAT_INSTALL_HOOK=$true
-```
+Setup a local default origin and key by running `hab setup`
 
 This plan takes advantage of several dependencies that use this feature to run an `install` hook when the dependency is installed for things like enabling windows features and registering a COM component.
 
 ### Demo in a Windows VM (no Docker)
 
 **Important**: For a smooth demo in front of an audience, make sure to run through the initial install and loading of services once before the live demo and then `unload` the services when everything is confirmed working. The first load takes MUCH longer than subsequent loads because of the .Net 2.0 and SQL Server installation. Susequent loads will already have these in place and will be much faster.
+
+On Windows 2016 Server, execute the following command in powershell as Nuget and Powershell Gallery require TLS 1.2
+
+```
+Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\.NetFramework\v4.0.30319' -Name 'SchUseStrongCrypto' -Value '1' -Type DWord
+```
 
 Enter a local Habitat Studio and load `core/sqlserver2005`:
 
@@ -85,7 +87,7 @@ Export the `core/sqlserver2005` package to a docker image:
 
 ```
 $env:HAB_SQLSERVER2005="{`"svc_account`":`"NT AUTHORITY\\SYSTEM`"}"
-hab pkg export docker --memory 2gb core/sqlserver2005
+hab pkg export container --memory 2gb core/sqlserver2005
 ```
 
 The first line above will make sure that the SQL Server install sets the `svc_account` to the `SYSTEM` account instead of the default `NETWORK SERVICE` account which is advisable in a container environment.
@@ -99,7 +101,7 @@ hab pkg build .
 Export our `sqlwebadmin` hart to a docker image:
 
 ```
-hab pkg export docker --memory 2gb <path to HART file>
+hab pkg export container --memory 2gb <path to HART file>
 ```
 
 OK! Now lets bring these two containers together into a ring:
@@ -110,7 +112,7 @@ $ip = docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}
 docker run -it --env HAB_LICENSE=accept-no-persist <your_origin>/sqlwebadmin --bind database:sqlserver2005.default --peer $ip
 ```
 
-Alternatively you can use Docker Compose along with the provided `docker-compose.yml` to bring up the containers:
+Alternatively you can use Docker Compose along with the provided `docker-compose.yml` to bring up the containers.  Be sure to update `image: your-origin/sqlwebadmin` with your origin.
 
 ```
 docker-compose up
